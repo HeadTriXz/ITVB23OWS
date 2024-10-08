@@ -1,0 +1,85 @@
+body {
+    background: lightgrey;
+}
+div.board {
+    width: 60%;
+    height: 100%;
+    min-height: 500px;
+    float: left;
+    overflow: scroll;
+    position: relative;
+}
+
+div.board div.tile {
+    position: absolute;
+}
+
+div.tile {
+    display: inline-block;
+    width: 32px;
+    height: 27px;
+    font-size: 50%;
+    padding: 4px;
+    position: relative;
+    text-align: center;
+}
+
+div.board div.tile {
+    margin-left: -2px;
+    margin-top: -1.5px;
+}
+
+div.tile:after {
+    content: "\2B22";
+    top: 0;
+    left: 0;
+    font-size: 65px;
+    margin-left: -2px;
+    margin-top: -20px;
+    z-index: -1;
+    position: absolute;
+    text-stroke: 1px gray;
+    -webkit-text-stroke: 1px gray;
+    text-shadow: 2px 1.5px gray;
+}
+
+div.board div.tile.empty {
+    margin: 0;
+}
+
+div.tile.empty:after {
+    color: lightgrey;
+    text-shadow: none;
+}
+
+div.tile span {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-size: 200%;
+}
+
+div.player0, div.player1:after {
+    color: black;
+}
+
+div.player0:after, div.player1 {
+    color: white;
+}
+
+div.hand {
+    height: 46px;
+}
+
+div.hand div.tile span {
+    margin-top: 8px;
+}
+
+div.board div.tile.stacked {
+    margin-left: -4px;
+    margin-top: -3px;
+}
+
+div.tile.stacked:after {
+    text-shadow: 4px 3px gray;
+}
