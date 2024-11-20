@@ -7,6 +7,9 @@
 <body>
 <div class="board">
     <?php
+
+    use Hive\Util;
+
     $width = 35;
     $height = 30;
 
@@ -106,7 +109,7 @@
     <select name="piece">
         <?php
         // render list of tile types
-        foreach ($game->hand[$game->player] as $tile => $ct) {
+        foreach ($game->getPlaceableTiles($game->player) as $tile) {
             echo "<option value=\"$tile\">$tile</option>";
         }
         ?>
@@ -114,7 +117,7 @@
     <select name="to">
         <?php
         // render list of possible moves
-        foreach ($to as $pos) {
+        foreach ($game->getValidPlacePositions($game->player) as $pos) {
             echo "<option value=\"$pos\">$pos</option>";
         }
         ?>
@@ -125,7 +128,7 @@
     <select name="from">
         <?php
         // render list of positions in board
-        foreach (array_keys($game->board) as $pos) {
+        foreach ($game->getMovableTiles($game->player) as $pos) {
             echo "<option value=\"$pos\">$pos</option>";
         }
         ?>
@@ -133,7 +136,7 @@
     <select name="to">
         <?php
         // render list of possible moves
-        foreach ($to as $pos) {
+        foreach ($game->getValidMovePositions($game->player) as $pos) {
             echo "<option value=\"$pos\">$pos</option>";
         }
         ?>

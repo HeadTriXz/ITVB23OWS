@@ -1,6 +1,15 @@
+# Dependency directories
 vendor/
-.env
 composer.phar
+
+# Environment file
+.env
+
+# Editor/IDE files
+.idea/
 **/.DS_Store
 [Dd]esktop.ini
-.idea/
+
+# Testing files
+.phpunit.cache
+coverage/

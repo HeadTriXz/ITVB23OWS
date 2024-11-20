@@ -27,7 +27,7 @@ class MoveController
         } else {
             // temporarily remove tile from board
             $tile = array_pop($game->board[$from]);
-            if (!Util::has_NeighBour($to, $game->board))
+            if (!Util::hasNeighbour($to, $game->board))
                 // target position is not connected to hive so move is invalid
                 $session->set("error", "Move would split hive");
             elseif (Util::hasMultipleHives($game->board)) {

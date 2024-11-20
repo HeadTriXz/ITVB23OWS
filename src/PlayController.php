@@ -18,7 +18,7 @@ class PlayController
         } elseif (isset($game->board[$to])) {
             // can only play on empty positions (even beetles)
             $session->set('error', 'Board position is not empty');
-        } elseif (count($game->board) && !Util::has_NeighBour($to, $game->board)) {
+        } elseif (count($game->board) && !Util::hasNeighbour($to, $game->board)) {
             // every tile except the very first one of the game must be played adjacent to the hive
             $session->set('error', "board position has no neighbour");
         } elseif (array_sum($hand) < 11 && !Util::neighboursAreSameColor($game->player, $to, $game->board)) {

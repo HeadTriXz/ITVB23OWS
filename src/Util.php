@@ -24,7 +24,7 @@ class Util {
     }
 
     // check if a position has a neighbour already on the board
-    public static function has_NeighBour(string $a, array $board) {
+    public static function hasNeighbour(string $a, array $board) {
         foreach (array_keys($board) as $b) {
             if (self::isNeighbour($a, $b)) return true;
         }
@@ -61,11 +61,24 @@ class Util {
         return !!$all;
     }
 
+    /**
+     * Parse a position string into an array of two integers.
+     *
+     * @param string $pos The position as a string.
+     * @return int[] The position as an array of two integers.
+     */
+    public static function parsePosition(string $pos): array
+    {
+        [$q, $r] = explode(',', $pos);
+
+        return [(int) $q, (int) $r];
+    }
+
     // check whether a move between two positions is valid given the rules for slides
     // which are used by all tiles except the grasshopper
     public static function slide(array $board, string $from, string $to) {
         // a slide is only valid if from and to are neighbours and to connects to the remainder of the hive
-        if (!self::has_NeighBour($to, $board)) return false;
+        if (!self::hasNeighbour($to, $board)) return false;
         if (!self::isNeighbour($from, $to)) return false;
 
         // find the two common neighbours of the origin and target tiles
