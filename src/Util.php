@@ -3,55 +3,93 @@
 namespace Hive;
 
 // static utility functions
-class Util {
+use Hive\Core\GameBoard;
+
+class Util
+{
     // offsets from a position to its six neighbours
     const array OFFSETS = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, -1]];
 
     private function __construct() {}
 
     // check if both positions are neighbours
-    public static function isNeighbour(string $a, string $b) {
-        $a = explode(',', $a);
-        $b = explode(',', $b);
-        // two tiles are neighbours if their FIRST coordinate is the same and the SECOND one differs by one
-        if ($a[0] == $b[0] && abs($a[1] - $b[1]) == 1) return true;
-        // two tiles are also neighbours if their SECOND coordinate is the same and the FIRST one differs by one
-        if ($a[1] == $b[1] && abs($a[0] - $b[0]) == 1) return true;
-        // two tiles are also neighbours if BOTH coordinates differ by one and both DIFFERENCES sum to zero
-        // e.g., 0,0 and -1,1 are neigbours
-        if ($a[0] + $a[1] == $b[0] + $b[1]) return true;
+    public static function isNeighbour(string $a, string $b): bool
+    {
+        $a = self::parsePosition($a);
+        $b = self::parsePosition($b);
+
+        foreach (self::OFFSETS as $qr) {
+            $q = $a[0] + $qr[0];
+            $r = $a[1] + $qr[1];
+
+            if ($q == $b[0] && $r == $b[1]) {
+                return true;
+            }
+        }
+
         return false;
     }
 
-    // check if a position has a neighbour already on the board
-    public static function hasNeighbour(string $a, array $board) {
-        foreach (array_keys($board) as $b) {
-            if (self::isNeighbour($a, $b)) return true;
+    /**
+     * Get the positions of the neighbours of a given position.
+     * This does NOT check if the neighbours are on the board.
+     *
+     * @param string $pos The position to get the neighbours of.
+     * @return array The positions of the neighbours of the given position.
+     */
+    public static function getNeighbours(string $pos): array
+    {
+        [$q, $r] = self::parsePosition($pos);
+
+        $neighbours = [];
+        foreach (self::OFFSETS as $qr) {
+            $neighbours[] = ($qr[0] + $q) . ',' . ($qr[1] + $r);
         }
+
+        return $neighbours;
+    }
+
+    // check if a position has a neighbour already on the board
+    public static function hasNeighbour(string $a, GameBoard $board): bool
+    {
+        foreach ($board->keys() as $b) {
+            if (self::isNeighbour($a, $b)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // check if all neighbours of a position belong to the same player
-    public static function neighboursAreSameColor(int $player, string $a, array $board) {
-        foreach ($board as $b => $st) {
-            if (!$st) continue;
-            $c = $st[count($st) - 1][0];
-            if ($c != $player && self::isNeighbour($a, $b)) return false;
+    public static function neighboursAreSameColor(int $player, string $a, GameBoard $board): bool
+    {
+        foreach ($board->toArray() as $b => $stack) {
+            if (!$stack) {
+                continue;
+            }
+
+            $c = $stack[0]->getPlayer();
+            if ($c != $player && self::isNeighbour($a, $b)) {
+                return false;
+            }
         }
         return true;
     }
 
     // check if the hive is currently split
-    public static function hasMultipleHives(array $board) {
+    public static function hasMultipleHives(GameBoard $board): bool
+    {
         // use flood fill to find all tiles reachable from a single (essentially random) tile
         // if any tiles are unreachable, the hive is split
-        $all = array_keys($board);
+        $all = $board->keys();
         $queue = [array_shift($all)];
         while ($queue) {
-            $next = explode(',', array_shift($queue));
-            foreach (Util::OFFSETS as $qr) {
-                list($q, $r) = $qr;
+            $next = self::parsePosition(array_shift($queue));
+            foreach (self::OFFSETS as $qr) {
+                [$q, $r] = $qr;
                 $q += $next[0];
                 $r += $next[1];
+
                 if (in_array("$q,$r", $all)) {
                     $queue[] = "$q,$r";
                     $all = array_diff($all, ["$q,$r"]);
@@ -71,35 +109,52 @@ class Util {
     {
         [$q, $r] = explode(',', $pos);
 
-        return [(int) $q, (int) $r];
+        return [(int)$q, (int)$r];
     }
 
-    // check whether a move between two positions is valid given the rules for slides
-    // which are used by all tiles except the grasshopper
-    public static function slide(array $board, string $from, string $to) {
-        // a slide is only valid if from and to are neighbours and to connects to the remainder of the hive
-        if (!self::hasNeighbour($to, $board)) return false;
-        if (!self::isNeighbour($from, $to)) return false;
+    /**
+     * Check whether a slide between two positions is valid.
+     * This is used by all tiles except the grasshopper.
+     *
+     * @param GameBoard $board The current board state.
+     * @param string $from The position to slide from.
+     * @param string $to The position to slide to.
+     * @return bool Whether the slide is valid.
+     */
+    public static function isValidSlide(GameBoard $board, string $from, string $to): bool
+    {
+        if (!self::hasNeighbour($to, $board)) {
+            return false;
+        }
+
+        if (!self::isNeighbour($from, $to)) {
+            return false;
+        }
 
         // find the two common neighbours of the origin and target tiles
         // there are always two, because the two tiles are neighbours
-        $b = explode(',', $to);
+        $b = self::parsePosition($to);
         $common = [];
         foreach (self::OFFSETS as $qr) {
             $q = $b[0] + $qr[0];
             $r = $b[1] + $qr[1];
-            if (self::isNeighbour($from, $q.",".$r)) $common[] = $q.",".$r;
+
+            if (self::isNeighbour($from, "$q,$r")) {
+                $common[] = "$q,$r";
+            }
         }
 
         // find the stacks at the four positions
-        $from = $board[$from] ?? [];
-        $to = $board[$to] ?? [];
-        $a = $board[$common[0]] ?? [];
-        $b = $board[$common[1]] ?? [];
+        $from = $board->getTiles($from);
+        $to = $board->getTiles($to);
+        $a = $board->getTiles($common[0]);
+        $b = $board->getTiles($common[1]);
 
         // if none of these four stacks contain tiles, the tile would be disconnected from
         // the hive during the move and the slide would therefore be invalid
-        if (!$a && !$b && !$from && !$to) return false;
+        if (!$a && !$b && !$from && !$to) {
+            return false;
+        }
 
         // the rules are unclear on when exactly a slide is valid, especially when considering stacked tiles
         // the following equation attempts to clarify which slides are valid

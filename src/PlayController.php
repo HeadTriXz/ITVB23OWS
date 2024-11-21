@@ -2,7 +2,9 @@
 
 namespace Hive;
 
-// play a new tile
+use Hive\Tiles\Tile;
+use Hive\Tiles\TileType;
+
 class PlayController
 {
     public function handlePost(string $piece, string $to)
@@ -15,10 +17,10 @@ class PlayController
         if (!$hand[$piece]) {
             // must still have tile in hand to be able to play it
             $session->set('error', "Player does not have tile");
-        } elseif (isset($game->board[$to])) {
+        } elseif ($game->board->hasTile($to)) {
             // can only play on empty positions (even beetles)
             $session->set('error', 'Board position is not empty');
-        } elseif (count($game->board) && !Util::hasNeighbour($to, $game->board)) {
+        } elseif (!$game->board->isEmpty() && !Util::hasNeighbour($to, $game->board)) {
             // every tile except the very first one of the game must be played adjacent to the hive
             $session->set('error', "board position has no neighbour");
         } elseif (array_sum($hand) < 11 && !Util::neighboursAreSameColor($game->player, $to, $game->board)) {
@@ -29,7 +31,9 @@ class PlayController
             $session->set('error', 'Must play queen bee');
         } else {
             // add the new tile to the board, remove it from its owners hand and switch players
-            $game->board[$to] = [[$game->player, $piece]];
+            $tile = Tile::from(TileType::from($piece), $game->player);
+            $game->board->addTile($to, $tile);
+
             $game->hand[$game->player][$piece]--;
             $game->player = 1 - $game->player;
 

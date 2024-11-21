@@ -3,6 +3,8 @@
 namespace Hive;
 
 // undo last move
+use Hive\Core\Game;
+
 class UndoController
 {
     public function handlePost() {

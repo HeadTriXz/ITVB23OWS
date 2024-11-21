@@ -3,6 +3,8 @@
 namespace Hive;
 
 // restart the game
+use Hive\Core\Game;
+
 class RestartController {
     public function handleGet() {
         // create new game

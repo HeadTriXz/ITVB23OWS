@@ -1,31 +1,26 @@
 <?php
 
-namespace Hive;
+namespace Hive\Core;
+
+use Hive\Util;
 
 /**
  * Represents the current state of the game.
  */
 class Game
 {
-    // TODO: Add proper documentation to the properties.
-    // current board state
-    // this is an associative array mapping board positions to stacks of tiles
-    // an example is ["0,0" => [["A", 0]], "0,1" => [["Q", 0], ["B", 1]]]
-    // in this example, there is a single white soldier ant (type "A" and
-    // player 0) at position 0,0 and a stack of two tiles at position 0,1
-    // which consists of a white queen bee (type "Q" and player 0) and a
-    // black beetle (type "B" and player 1) (the top tile, in this case the beetle,
-    // is the last element of the array)
-    // board positions consist of two integer coordinates Q and R which represent
-    // a position in an axial coordinate system (https://www.redblobgames.com/grids/hexagons/)
-    public array $board;
+    /**
+     * The current state of the board.
+     *
+     * @var GameBoard
+     */
+    public GameBoard $board;
 
-    // current tiles in hand for both players
-    // contains an associative array for each player which maps tile types,
-    // given as a single character, to the number of that type of tile the
-    // player has in hand
-    // valid tile types are Q for queen bee, B for beetle, S for spider,
-    // A for soldier ant and G for grasshopper
+    /**
+     * The current tiles in the hand of both players.
+     *
+     * @var array
+     */
     public array $hand;
 
     /**
@@ -40,7 +35,7 @@ class Game
      */
     public function __construct()
     {
-        $this->board = [];
+        $this->board = new GameBoard();
         $this->hand = [
             0 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3],
             1 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3]
@@ -56,15 +51,25 @@ class Game
     public static function fromString(string $serialized): self
     {
         $self = new self();
-        [$self->board, $self->hand, $self->player] = json_decode($serialized, true);
+        $data = json_decode($serialized, true);
+
+        $self->board->fromArray($data[0]);
+        $self->hand = $data[1];
+        $self->player = $data[2];
+
         return $self;
     }
 
+    /**
+     * Get the positions adjacent to the current board state.
+     *
+     * @return array The adjacent positions.
+     */
     public function getAdjacentPositions(): array
     {
         $to = [];
         foreach (Util::OFFSETS as $qr) {
-            foreach (array_keys($this->board) as $pos) {
+            foreach ($this->board->keys() as $pos) {
                 [$x, $y] = Util::parsePosition($pos);
                 $to[] = ($qr[0] + $x).','.($qr[1] + $y);
             }
@@ -104,28 +109,32 @@ class Game
      */
     public function getMovableTiles(int $player): array
     {
+        if ($this->hand[$player]['Q'] > 0) {
+            return []; // Queen bee has not been played yet
+        }
+
         $from = [];
-        foreach (array_keys($this->board) as $pos) {
-            $tile = $this->board[$pos][count($this->board[$pos]) - 1];
-            if ($tile[0] != $player) {
+        foreach ($this->board->keys() as $pos) {
+            $tile = $this->board->getTiles($pos)[0];
+            if ($tile->getPlayer() != $player) {
                 continue;
             }
 
-            $from[] = $pos;
+            $this->board->removeTile($pos);
+            $hasSplit = Util::hasMultipleHives($this->board);
+            $this->board->addTile($pos, $tile);
+
+            if ($hasSplit) {
+                continue;
+            }
+
+            $validMoves = $tile->getValidMoves($this->board, $pos);
+            if (count($validMoves) > 0) {
+                $from[] = $pos;
+            }
         }
 
         return $from;
-    }
-
-    /**
-     * Get the valid positions to move a tile to.
-     *
-     * @param int $player The player to get the valid positions for.
-     * @return array The valid positions to move a tile to.
-     */
-    public function getValidMovePositions(int $player): array
-    {
-        return $this->getAdjacentPositions(); // TODO: Implement support for moving tiles
     }
 
     /**
@@ -137,13 +146,13 @@ class Game
     public function getValidPlacePositions(int $player): array
     {
         $to = [];
-        $hand = $this->hand[$this->player];
+        $hand = $this->hand[$player];
         foreach ($this->getAdjacentPositions() as $pos) {
-            if (isset($this->board[$pos])) {
+            if ($this->board->hasTile($pos)) {
                 continue;
             }
 
-            if (count($this->board) > 0 && !Util::hasNeighbour($pos, $this->board)) {
+            if (!$this->board->isEmpty() && !Util::hasNeighbour($pos, $this->board)) {
                 continue;
             }
 
@@ -164,6 +173,10 @@ class Game
      */
     public function __toString(): string
     {
-        return json_encode([$this->board, $this->hand, $this->player]);
+        return json_encode([
+            $this->board->toJSON(),
+            $this->hand,
+            $this->player
+        ]);
     }
 }

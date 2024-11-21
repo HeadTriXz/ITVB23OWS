@@ -1,6 +1,10 @@
 <?php
 
-use Hive\Game;
+namespace Hive\Tests\Core;
+
+use Hive\Core\Game;
+use Hive\Tiles\Tile;
+use Hive\Tiles\TileType;
 use PHPUnit\Framework\TestCase;
 
 class GameTest extends TestCase
@@ -8,7 +12,8 @@ class GameTest extends TestCase
     public function testGetAdjacentPositionsSingle(): void
     {
         $game = new Game();
-        $game->board["0,0"] = [[0, "Q"]]; // Place a Queen Bee at 0,0.
+        $game->board->addTile("0,0", Tile::from(TileType::QueenBee, 0));
+        $game->hand[0]["Q"]--;
 
         $positions = $game->getAdjacentPositions();
 
@@ -20,8 +25,11 @@ class GameTest extends TestCase
     public function testGetAdjacentPositionsMultiple(): void
     {
         $game = new Game();
-        $game->board["0,0"] = [[0, "Q"]]; // Place a Queen Bee at 0,0 (white).
-        $game->board["0,1"] = [[1, "Q"]]; // Place a Queen Bee at 0,1 (black).
+        $game->board->addTile("0,0", Tile::from(TileType::QueenBee, 0));
+        $game->board->addTile("0,1", Tile::from(TileType::QueenBee, 1));
+
+        $game->hand[0]["Q"]--;
+        $game->hand[1]["Q"]--;
 
         $positions = $game->getAdjacentPositions();
 
@@ -59,19 +67,24 @@ class GameTest extends TestCase
     public function testGetMovableTiles(): void
     {
         $game = new Game();
-        $game->board["0,0"] = [[0, "Q"]]; // Place a Queen Bee at 0,0 (white).
-        $game->board["0,1"] = [[1, "Q"]]; // Place a Queen Bee at 0,1 (black).
-        $game->board["0,-1"] = [[0, "B"]]; // Place a Beetle at 0,-1 (white).
+        $game->board->addTile("0,0", Tile::from(TileType::Beetle, 0));
+        $game->board->addTile("0,1", Tile::from(TileType::QueenBee, 1));
+        $game->board->addTile("0,-1", Tile::from(TileType::QueenBee, 0));
+
+        $game->hand[0]["B"]--;
+        $game->hand[1]["Q"]--;
+        $game->hand[0]["Q"]--;
 
         $tiles = $game->getMovableTiles(0);
 
-        $this->assertEqualsCanonicalizing(["0,0", "0,-1"], $tiles);
+        $this->assertEqualsCanonicalizing(["0,-1"], $tiles);
     }
 
     public function testGetMovableTilesEmpty(): void
     {
         $game = new Game();
-        $game->board["0,0"] = [[0, "Q"]]; // Place a Queen Bee at 0,0 (white).
+        $game->board->addTile("0,0", Tile::from(TileType::QueenBee, 0));
+        $game->hand[0]["Q"]--;
 
         $tiles = $game->getMovableTiles(1);
 
@@ -81,20 +94,22 @@ class GameTest extends TestCase
     public function testGetValidPlacePositions(): void
     {
         $game = new Game();
-        $game->board["0,0"] = [[0, "Q"]]; // Place a Queen Bee at 0,0 (white).
-        $game->board["0,1"] = [[1, "Q"]]; // Place a Queen Bee at 0,1 (black).
+        $game->board->addTile("0,0", Tile::from(TileType::QueenBee, 0));
+        $game->board->addTile("0,1", Tile::from(TileType::QueenBee, 1));
+
+        $game->hand[0]["Q"]--;
+        $game->hand[1]["Q"]--;
 
         $positions = $game->getValidPlacePositions(0);
 
-        $this->assertEqualsCanonicalizing([
-            "-1,0", "-1,1", "0,-1", "1,-1", "1,0", "1,1", "-1,2", "0,2"
-        ], $positions);
+        $this->assertEqualsCanonicalizing(["-1,0", "0,-1", "1,-1"], $positions);
     }
 
     public function testGetValidPlacePositionsFirst(): void
     {
         $game = new Game();
-        $game->board["0,0"] = [[0, "Q"]]; // Place a Queen Bee at 0,0 (white).
+        $game->board->addTile("0,0", Tile::from(TileType::QueenBee, 0));
+        $game->hand[0]["Q"]--;
 
         $positions = $game->getValidPlacePositions(1);
 
