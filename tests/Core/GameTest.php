@@ -64,6 +64,20 @@ class GameTest extends TestCase
         $this->assertEquals([], $tiles);
     }
 
+    public function testGetPlaceableTilesForceQueen(): void
+    {
+        $game = new Game();
+        $game->hand = [
+            0 => ["Q" => 1, "B" => 0, "S" => 1, "A" => 3, "G" => 3],
+            1 => ["Q" => 0, "B" => 0, "S" => 2, "A" => 3, "G" => 3]
+        ];
+
+        $tiles = $game->getPlaceableTiles(0);
+
+        // The queen bee must be played within the first four moves
+        $this->assertEquals(["Q"], $tiles);
+    }
+
     public function testGetMovableTiles(): void
     {
         $game = new Game();

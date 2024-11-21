@@ -91,6 +91,10 @@ class Game
      */
     public function getPlaceableTiles(int $player): array
     {
+        if (Util::mustPlayQueen($this->hand[$player])) {
+            return ['Q'];
+        }
+
         $tiles = [];
         foreach ($this->hand[$player] as $tile => $count) {
             if ($count > 0) {

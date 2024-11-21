@@ -100,6 +100,17 @@ class Util
     }
 
     /**
+     * Check whether the queen bee must be played.
+     *
+     * @param array $hand The current player's hand.
+     * @return bool Whether the queen bee must be played.
+     */
+    public static function mustPlayQueen(array $hand): bool
+    {
+        return array_sum($hand) <= 8 && $hand['Q'];
+    }
+
+    /**
      * Parse a position string into an array of two integers.
      *
      * @param string $pos The position as a string.
