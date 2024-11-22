@@ -1,4 +1,6 @@
 {
+  "name": "headtrixz/hive",
+  "description": "The Hive board game in PHP",
   "require": {
     "php": ">=8.3",
     "ext-mysqli": "*",
