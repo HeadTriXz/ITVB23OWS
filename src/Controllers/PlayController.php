@@ -59,8 +59,11 @@ class PlayController
             $game->player = 1 - $game->player;
 
             // store move in database
-            $state = $this->database->escape($game);
             $last = $this->session->get('last_move') ?? 'null';
+            $state = $this->database->escape($game);
+            $piece = $this->database->escape($piece);
+            $to = $this->database->escape($to);
+
             $this->database->execute("
                 INSERT INTO moves (game_id, type, move_from, move_to, previous_id, state)
                 VALUES ({$this->session->get('game_id')}, \"play\", \"$piece\", \"$to\", $last, \"$state\")
