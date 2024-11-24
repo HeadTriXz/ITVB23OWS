@@ -1,3 +1,19 @@
+<?php
+
+use Hive\Core\Game;
+
+// Avoid IDE warnings about undefined variables.
+
+/** @var array $boardData */
+/** @var string $error */
+/** @var Game $game */
+/** @var array $movableTilesMap */
+/** @var array $movesHistory */
+/** @var array $placePositions */
+/** @var array $placeableTiles */
+/** @var string $turn */
+?>
+
 <!DOCTYPE html>
 <html>
 <head>

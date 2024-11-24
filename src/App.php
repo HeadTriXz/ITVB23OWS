@@ -45,7 +45,7 @@ class App
 
         // Dispatch GET or POST request
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') == 'GET') {
-            // noinspection PhpMethodParametersCountMismatchInspection - $_GET is currently not used
+            /** @noinspection PhpMethodParametersCountMismatchInspection - $_GET is currently not used */
             $controller->handleGet(...$_GET);
         } else {
             $controller->handlePost(...$_POST);
