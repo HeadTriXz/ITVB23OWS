@@ -2,28 +2,48 @@
 
 namespace Hive;
 
-// encapsulate session superglobal
-class Session {
-    private function __construct() {
+/**
+ * A wrapper class for PHP session handling.
+ */
+class Session
+{
+    /**
+     * A wrapper class for PHP session handling.
+     */
+    public function __construct()
+    {
         session_start();
     }
 
-    private static self $inst;
-
-    public static function inst(): self {
-        if (!isset(self::$inst)) {
-            self::$inst = new self();
-        }
-        return self::$inst;
+    /**
+     * Delete a session variable.
+     *
+     * @param string $key The key of the variable.
+     */
+    public function delete(string $key): void
+    {
+        unset($_SESSION[$key]);
     }
 
-    // get session variable
-    public function get(string $key): mixed {
+    /**
+     * Get a session variable.
+     *
+     * @param string $key The key of the variable.
+     * @return mixed The value of the variable.
+     */
+    public function get(string $key): mixed
+    {
         return $_SESSION[$key] ?? null;
     }
 
-    // set session variable
-    public function set(string $key, mixed $value): void {
+    /**
+     * Set a session variable.
+     *
+     * @param string $key The key of the variable.
+     * @param mixed $value The value of the variable.
+     */
+    public function set(string $key, mixed $value): void
+    {
         $_SESSION[$key] = $value;
     }
 }

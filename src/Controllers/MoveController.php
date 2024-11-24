@@ -1,51 +1,71 @@
 <?php
 
-namespace Hive;
+namespace Hive\Controllers;
 
-// move an existing tile
+use Hive\App;
+use Hive\Database;
+use Hive\Session;
 use Hive\Tiles\TileType;
+use Hive\Util;
 
+/**
+ * A controller for moving tiles on the board.
+ */
 class MoveController
 {
-    public function handlePost(string $from, string $to)
+    /**
+     * A controller for moving tiles on the board.
+     *
+     * @param Session $session The session instance.
+     * @param Database $database The database instance.
+     */
+    public function __construct(protected Session $session, protected Database $database)
     {
-        // get state from session
-        $session = Session::inst();
-        $game = $session->get('game');
+    }
+
+    /**
+     * Handle a POST request.
+     *
+     * @param string $from The position to move the tile from.
+     * @param string $to The position to move the tile to.
+     */
+    public function handlePost(string $from, string $to): void
+    {
+        $game = $this->session->get('game');
         $hand = $game->hand[$game->player];
 
         if (!$game->board->hasTile($from)) {
             // cannot move tile from empty position
-            $session->set('error', 'Board position is empty');
+            $this->session->set('error', 'Board position is empty');
         } elseif ($game->board->getTiles($from)[0]->getPlayer() != $game->player) {
             // can only move top of stack and only if owned by current player
-            $session->set("error", "Tile is not owned by player");
+            $this->session->set('error', 'Tile is not owned by player');
         } elseif ($hand['Q']) {
             // cannot move unless queen bee has previously been played
-            $session->set('error', "Queen bee is not played");
+            $this->session->set('error', 'Queen bee is not played');
         } elseif ($from === $to) {
             // a tile cannot return to its original position
-            $session->set('error', 'Tile must move to a different position');
+            $this->session->set('error', 'Tile must move to a different position');
         } else {
             // temporarily remove tile from board
             $tile = $game->board->removeTile($from);
             if (!Util::hasNeighbour($to, $game->board)) {
                 // target position is not connected to hive so move is invalid
-                $session->set("error", "Move would split hive");
+                $this->session->set('error', 'Move would split hive');
             } elseif (Util::hasMultipleHives($game->board)) {
                 // the move would split the hive in two so it is invalid
-                $session->set("error", "Move would split hive");
+                $this->session->set('error', 'Move would split hive');
             } elseif ($game->board->hasTile($to) && $tile->getType() != TileType::Beetle) {
                 // only beetles are allowed to stack on top of other tiles
-                $session->set("error", 'Tile not empty');
+                $this->session->set('error', 'Tile not empty');
             } elseif ($tile->getType() == TileType::QueenBee || $tile->getType() == TileType::Beetle) {
                 // queen bees and beetles must move a single hex using the sliding rules
                 if (!Util::isValidSlide($game->board, $from, $to)) {
-                    $session->set("error", 'Tile must slide');
+                    $this->session->set('error', 'Tile must slide');
                 }
             }
             // TODO: rules for other tiles aren't implemented yet
-            if ($session->get('error')) {
+            if ($this->session->get('error')) {
                 // illegal move so reset tile that was temporarily removed
                 $game->board->addTile($from, $tile);
             } else {
@@ -54,18 +74,16 @@ class MoveController
                 $game->player = 1 - $game->player;
 
                 // store move in database
-                $db = Database::inst();
-                $state = $db->Escape($game);
-                $last = $session->get('last_move') ?? 'null';
-                $db->Execute("
-                    insert into moves (game_id, type, move_from, move_to, previous_id, state)
-                    values ({$session->get('game_id')}, \"move\", \"$from\", \"$to\", $last, \"$state\")
+                $state = $this->database->escape($game);
+                $last = $this->session->get('last_move') ?? 'null';
+                $this->database->execute("
+                    INSERT INTO moves (game_id, type, move_from, move_to, previous_id, state)
+                    VALUES ({$this->session->get('game_id')}, \"move\", \"$from\", \"$to\", $last, \"$state\")
                 ");
-                $session->set('last_move', $db->Get_Insert_Id());
+                $this->session->set('last_move', $this->database->getInsertId());
             }
         }
 
-        // redirect back to index
         App::redirect();
     }
 }

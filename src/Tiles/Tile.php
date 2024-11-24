@@ -21,9 +21,9 @@ abstract class Tile
      *
      * @param int $player The player that owns the tile.
      */
-    public function __construct(
-        protected int $player
-    ) {}
+    public function __construct(protected int $player)
+    {
+    }
 
     /**
      * Returns the player that owns the tile.
@@ -45,6 +45,11 @@ abstract class Tile
         return $this->type;
     }
 
+    /**
+     * Returns the tile as an array.
+     *
+     * @return array The tile as an array.
+     */
     public function toArray(): array
     {
         return [$this->player, $this->type];

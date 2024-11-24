@@ -2,48 +2,82 @@
 
 namespace Hive;
 
-// database connectivity
+use mysqli;
+use mysqli_result;
+use RuntimeException;
+
+/**
+ * A wrapper class for database handling.
+ */
 class Database
 {
-    private \mysqli $db;
+    /**
+     * The mysqli connection.
+     *
+     * @var mysqli
+     */
+    protected mysqli $database;
 
-    private function __construct() {
-        $this->db = new \mysqli($_ENV['DB_HOST'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD'], $_ENV['DB_DATABASE'], $_ENV['DB_PORT']);
+    /**
+     * A wrapper class for database handling.
+     */
+    public function __construct()
+    {
+        $this->database = new mysqli(
+            $_ENV['DB_HOST'],
+            $_ENV['DB_USERNAME'],
+            $_ENV['DB_PASSWORD'],
+            $_ENV['DB_DATABASE'],
+            $_ENV['DB_PORT']
+        );
     }
 
-    private static self $inst;
-
-    public static function inst(): self {
-        if (!isset(self::$inst)) {
-            self::$inst = new self();
-        }
-        return self::$inst;
-    }
-
-    // execute query with result
-    public function Query(string $string): \mysqli_result {
-        $result = $this->db->query($string);
+    /**
+     * Execute a query and return the result.
+     *
+     * @param string $string The query string.
+     * @return mysqli_result The result of the query.
+     */
+    public function query(string $string): mysqli_result
+    {
+        $result = $this->database->query($string);
         if ($result === false) {
-            throw new \RuntimeException($this->db->error);
+            throw new RuntimeException($this->database->error);
         }
         return $result;
     }
 
-    // execute query without result
-    public function Execute(string $string) {
-        $result = $this->db->query($string);
+    /**
+     * Execute a query without a result.
+     *
+     * @param string $string The query string.
+     */
+    public function execute(string $string): void
+    {
+        $result = $this->database->query($string);
         if ($result === false) {
-            throw new \RuntimeException($this->db->error);
+            throw new RuntimeException($this->database->error);
         }
     }
 
-    // escape string for mysql
-    public function Escape(string $string): string {
-        return mysqli_real_escape_string($this->db, $string);
+    /**
+     * Escape a string to prevent SQL injection.
+     *
+     * @param string $string The string to escape.
+     * @return string The escaped string.
+     */
+    public function escape(string $string): string
+    {
+        return mysqli_real_escape_string($this->database, $string);
     }
 
-    // get last insert id
-    public function Get_Insert_Id(): int {
-        return intval($this->db->insert_id);
+    /**
+     * Get the last insert ID.
+     *
+     * @return int The last insert ID.
+     */
+    public function getInsertId(): int
+    {
+        return intval($this->database->insert_id);
     }
 }

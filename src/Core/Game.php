@@ -37,8 +37,8 @@ class Game
     {
         $this->board = new GameBoard();
         $this->hand = [
-            0 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3],
-            1 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3]
+            0 => ['Q' => 1, 'B' => 2, 'S' => 2, 'A' => 3, 'G' => 3],
+            1 => ['Q' => 1, 'B' => 2, 'S' => 2, 'A' => 3, 'G' => 3]
         ];
     }
 
@@ -71,7 +71,7 @@ class Game
         foreach (Util::OFFSETS as $qr) {
             foreach ($this->board->keys() as $pos) {
                 [$x, $y] = Util::parsePosition($pos);
-                $to[] = ($qr[0] + $x).','.($qr[1] + $y);
+                $to[] = ($qr[0] + $x) . ',' . ($qr[1] + $y);
             }
         }
 

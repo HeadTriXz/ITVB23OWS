@@ -2,17 +2,32 @@
 
 namespace Hive;
 
-// static utility functions
 use Hive\Core\GameBoard;
 
+/**
+ * A utility class for various helper functions.
+ */
 class Util
 {
-    // offsets from a position to its six neighbours
-    const array OFFSETS = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, -1]];
+    /**
+     * The offsets from a position to its six neighbours.
+     */
+    public const array OFFSETS = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, -1]];
 
-    private function __construct() {}
+    /**
+     * A utility class for various helper functions.
+     */
+    private function __construct()
+    {
+    }
 
-    // check if both positions are neighbours
+    /**
+     * Check whether two positions are neighbours.
+     *
+     * @param string $a The first position.
+     * @param string $b The second position.
+     * @return bool Whether the two positions are neighbours.
+     */
     public static function isNeighbour(string $a, string $b): bool
     {
         $a = self::parsePosition($a);
@@ -49,7 +64,13 @@ class Util
         return $neighbours;
     }
 
-    // check if a position has a neighbour already on the board
+    /**
+     * Check whether a position has a neighbour already on the board.
+     *
+     * @param string $a The position to check.
+     * @param GameBoard $board The current board state.
+     * @return bool Whether the position has a neighbour already on the board.
+     */
     public static function hasNeighbour(string $a, GameBoard $board): bool
     {
         foreach ($board->keys() as $b) {
@@ -60,7 +81,14 @@ class Util
         return false;
     }
 
-    // check if all neighbours of a position belong to the same player
+    /**
+     * Check whether all neighbours of a position belong to the same player.
+     *
+     * @param int $player The player to check for.
+     * @param string $a The position to check.
+     * @param GameBoard $board The current board state.
+     * @return bool Whether all neighbours of a position belong to the same player.
+     */
     public static function neighboursAreSameColor(int $player, string $a, GameBoard $board): bool
     {
         foreach ($board->toArray() as $b => $stack) {
@@ -76,11 +104,14 @@ class Util
         return true;
     }
 
-    // check if the hive is currently split
+    /**
+     * Check whether the hive is currently split.
+     *
+     * @param GameBoard $board The current board state.
+     * @return bool Whether the hive is currently split.
+     */
     public static function hasMultipleHives(GameBoard $board): bool
     {
-        // use flood fill to find all tiles reachable from a single (essentially random) tile
-        // if any tiles are unreachable, the hive is split
         $all = $board->keys();
         $queue = [array_shift($all)];
         while ($queue) {
