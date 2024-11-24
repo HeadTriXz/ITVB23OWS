@@ -1,0 +1,28 @@
+name: "Main Profile"
+baseProfile: qodana.recommended
+inspections:
+  - inspection: PhpMethodNamingConventionInspection
+    enabled: true
+    options:
+      m_maxLength: 32
+      m_minLength: 3
+
+  - inspection: PhpClassNamingConventionInspection
+    enabled: true
+    options:
+      m_maxLength: 32
+      m_minLength: 3
+
+  - inspection: PhpVariableNamingConventionInspection
+    enabled: true
+    options:
+      m_regex: "[a-z][A-Za-z\\d]*"
+      m_maxLength: 16
+      m_minLength: 1
+
+  - inspection: PhpEnforceDocCommentInspection
+    enabled: true
+    options:
+      CHECK_CONSTANT: true
+      CHECK_FIELD: true
+      CHECK_CLASS_CONSTANT: true

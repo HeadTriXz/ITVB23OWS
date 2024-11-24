@@ -1,0 +1,20 @@
+version: "1.0"
+profile:
+  path: .qodana/profile.yaml
+
+linter: jetbrains/qodana-php:latest
+
+include:
+  - name: PhpCSValidationInspection
+  - name: PhpConstantNamingConventionInspection
+  - name: PhpFunctionNamingConventionInspection
+  - name: PhpPropertyNamingConventionInspection
+  - name: PhpVulnerablePathsInspection
+  - name: PhpUnnecessaryDoubleQuotesInspection
+
+exclude:
+  - name: All
+    paths:
+      - public
+      - tests
+      - vendor
