@@ -81,7 +81,7 @@ use Hive\Core\Game;
 <strong><?= $error ?></strong>
 <ol>
     <?php foreach ($movesHistory as $move): ?>
-        <li><?= $move[2] ?> <?= $move[3] ?> <?= $move[4] ?></li>
+        <li><?= $move['type'] ?> <?= $move['move_from'] ?> <?= $move['move_to'] ?></li>
     <?php endforeach; ?>
 </ol>
 <form method="post" action="/undo">

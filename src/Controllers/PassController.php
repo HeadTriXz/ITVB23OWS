@@ -3,7 +3,7 @@
 namespace Hive\Controllers;
 
 use Hive\App;
-use Hive\Database;
+use Hive\Repositories\MoveRepository;
 use Hive\Session;
 
 /**
@@ -15,9 +15,9 @@ class PassController
      * A controller for passing the turn.
      *
      * @param Session $session The session instance.
-     * @param Database $database The database instance.
+     * @param MoveRepository $moves The repository for the 'moves' table.
      */
-    public function __construct(protected Session $session, protected Database $database)
+    public function __construct(protected Session $session, protected MoveRepository $moves)
     {
     }
 
@@ -31,13 +31,9 @@ class PassController
         $game = $this->session->get('game');
         $game->player = 1 - $game->player;
 
-        $state = $this->database->escape($game);
-        $last = $this->session->get('last_move') ?? 'null';
-        $this->database->query("
-            INSERT INTO moves (game_id, type, move_from, move_to, previous_id, state)
-            VALUES ({$this->session->get('game_id')}, \"pass\", null, null, $last, \"$state\")
-        ");
-        $this->session->set('last_move', $this->database->getInsertId());
+        // Save the game state.
+        $id = $this->moves->create('pass', null, null);
+        $this->session->set('last_move', $id);
 
         App::redirect();
     }

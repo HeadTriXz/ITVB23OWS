@@ -4,7 +4,7 @@ namespace Hive\Controllers;
 
 use Hive\App;
 use Hive\Core\Game;
-use Hive\Database;
+use Hive\Repositories\GameRepository;
 use Hive\Session;
 
 /**
@@ -16,9 +16,9 @@ class RestartController
      * A controller for restarting the game.
      *
      * @param Session $session The session instance.
-     * @param Database $database The database instance.
+     * @param GameRepository $games The repository for the 'games' table.
      */
-    public function __construct(protected Session $session, protected Database $database)
+    public function __construct(protected Session $session, protected GameRepository $games)
     {
     }
 
@@ -27,10 +27,9 @@ class RestartController
      */
     public function handleGet(): void
     {
+        $id = $this->games->create();
+        $this->session->set('game_id', $id);
         $this->session->set('game', new Game());
-
-        $this->database->execute('INSERT INTO games VALUES ()');
-        $this->session->set('game_id', $this->database->getInsertId());
 
         App::redirect();
     }

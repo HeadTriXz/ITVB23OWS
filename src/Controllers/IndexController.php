@@ -4,7 +4,7 @@ namespace Hive\Controllers;
 
 use Hive\App;
 use Hive\Core\Game;
-use Hive\Database;
+use Hive\Repositories\MoveRepository;
 use Hive\Session;
 use Hive\Util;
 
@@ -17,9 +17,9 @@ class IndexController
      * A controller for the index page.
      *
      * @param Session $session The session instance.
-     * @param Database $database The database instance.
+     * @param MoveRepository $moves The repository for the 'moves' table.
      */
-    public function __construct(protected Session $session, protected Database $database)
+    public function __construct(protected Session $session, protected MoveRepository $moves)
     {
     }
 
@@ -41,29 +41,12 @@ class IndexController
         $placePositions = $game->getValidPlacePositions($game->player);
 
         $movableTilesMap = $this->getMovableTilesMap($game);
-        $movesHistory = $this->fetchMovesHistory();
+        $movesHistory = $this->moves->findAll($this->session->get('game_id'));
 
         $error = $this->session->get('error') ?? '';
         $this->session->delete('error');
 
         require_once TEMPLATE_DIR . '/index.html.php';
-    }
-
-    /**
-     * Fetch the moves history from the database.
-     *
-     * @return array The history of moves.
-     */
-    public function fetchMovesHistory(): array
-    {
-        $result = $this->database->query("SELECT * FROM moves WHERE game_id = {$this->session->get('game_id')}");
-
-        $history = [];
-        while ($row = $result->fetch_array()) {
-            $history[] = $row;
-        }
-
-        return $history;
     }
 
     /**

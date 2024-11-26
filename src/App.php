@@ -8,6 +8,12 @@ use Hive\Controllers\PassController;
 use Hive\Controllers\PlayController;
 use Hive\Controllers\RestartController;
 use Hive\Controllers\UndoController;
+use Hive\Repositories\GameRepository;
+use Hive\Repositories\MoveRepository;
+use Hive\Services\MoveService;
+use Hive\Services\PlayService;
+use Hive\Validators\MoveValidator;
+use Hive\Validators\PlayValidator;
 
 /**
  * The main application.
@@ -15,13 +21,46 @@ use Hive\Controllers\UndoController;
 class App
 {
     /**
+     * The database instance.
+     *
+     * @var Database
+     */
+    protected Database $database;
+
+    /**
+     * The session instance.
+     *
+     * @var Session
+     */
+    protected Session $session;
+
+    /**
+     * The repository for the 'games' table.
+     *
+     * @var GameRepository
+     */
+    protected GameRepository $gameRepository;
+
+    /**
+     * The repository for the 'moves' table.
+     *
+     * @var MoveRepository
+     */
+    protected MoveRepository $moveRepository;
+
+    /**
      * The main application.
      *
      * @param Session $session The session instance.
      * @param Database $database The database instance.
      */
-    public function __construct(protected Session $session, protected Database $database)
+    public function __construct(Session $session, Database $database)
     {
+        $this->session = $session;
+        $this->database = $database;
+
+        $this->gameRepository = new GameRepository($database);
+        $this->moveRepository = new MoveRepository($session, $database);
     }
 
     /**
@@ -35,12 +74,20 @@ class App
 
         // Find corresponding controller
         $controller = match ($route) {
-            'index' => new IndexController($this->session, $this->database),
-            'move' => new MoveController($this->session, $this->database),
-            'pass' => new PassController($this->session, $this->database),
-            'play' => new PlayController($this->session, $this->database),
-            'restart' => new RestartController($this->session, $this->database),
-            'undo' => new UndoController($this->session, $this->database),
+            'index' => new IndexController($this->session, $this->moveRepository),
+            'move' => new MoveController(
+                $this->session,
+                new MoveValidator(),
+                new MoveService($this->session, $this->moveRepository)
+            ),
+            'pass' => new PassController($this->session, $this->moveRepository),
+            'play' => new PlayController(
+                $this->session,
+                new PlayValidator(),
+                new PlayService($this->session, $this->moveRepository)
+            ),
+            'restart' => new RestartController($this->session, $this->gameRepository),
+            'undo' => new UndoController($this->session, $this->moveRepository),
         };
 
         // Dispatch GET or POST request
