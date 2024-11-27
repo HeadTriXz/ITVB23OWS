@@ -13,7 +13,6 @@ include:
   - name: PhpUnnecessaryDoubleQuotesInspection
 
 exclude:
-  - name: PhpCoverageInspection
   - name: All
     paths:
       - public

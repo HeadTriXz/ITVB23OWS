@@ -26,3 +26,10 @@ inspections:
       CHECK_CONSTANT: true
       CHECK_FIELD: true
       CHECK_CLASS_CONSTANT: true
+
+  - inspection: PhpCoverageInspection
+    enabled: true
+    options:
+      classThreshold: 0
+      methodThreshold: 0
+      fileThreshold: 0
