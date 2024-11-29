@@ -3,6 +3,7 @@
 namespace Hive\Tiles;
 
 use Hive\Core\GameBoard;
+use Hive\Util;
 
 /**
  * Represents a Grasshopper tile.
@@ -26,6 +27,27 @@ class Grasshopper extends Tile
      */
     public function getValidMoves(GameBoard $board, string $pos): array
     {
-        return []; // TODO: Implement getValidMoves() method.
+        $positions = [];
+
+        [$q, $r] = Util::parsePosition($pos);
+        foreach (Util::OFFSETS as $qr) {
+            $tempQ = $q + $qr[0];
+            $tempR = $r + $qr[1];
+
+            // Check if there is at least one tile.
+            if (!$board->hasTile("$tempQ,$tempR")) {
+                continue;
+            }
+
+            // Find the next empty position.
+            while ($board->hasTile("$tempQ,$tempR")) {
+                $tempQ += $qr[0];
+                $tempR += $qr[1];
+            }
+
+            $positions[] = "$tempQ,$tempR";
+        }
+
+        return $positions;
     }
 }
