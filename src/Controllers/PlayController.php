@@ -34,12 +34,13 @@ class PlayController
     {
         $game = $this->session->get('game');
         $error = $this->validator->validate($game, $piece, $to);
+
         if ($error) {
             $this->session->set('error', $error);
-            return;
+        } else {
+            $this->service->play($game, $piece, $to);
         }
 
-        $this->service->play($game, $piece, $to);
         App::redirect();
     }
 }

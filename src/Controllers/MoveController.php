@@ -36,12 +36,13 @@ class MoveController
     {
         $game = $this->session->get('game');
         $error = $this->validator->validate($game, $from, $to);
+
         if ($error) {
             $this->session->set('error', $error);
-            return;
+        } else {
+            $this->service->move($game, $from, $to);
         }
 
-        $this->service->move($game, $from, $to);
         App::redirect();
     }
 }
