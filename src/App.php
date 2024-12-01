@@ -13,6 +13,7 @@ use Hive\Repositories\MoveRepository;
 use Hive\Services\MoveService;
 use Hive\Services\PlayService;
 use Hive\Validators\MoveValidator;
+use Hive\Validators\PassValidator;
 use Hive\Validators\PlayValidator;
 
 /**
@@ -80,7 +81,11 @@ class App
                 new MoveValidator(),
                 new MoveService($this->session, $this->moveRepository)
             ),
-            'pass' => new PassController($this->session, $this->moveRepository),
+            'pass' => new PassController(
+                $this->session,
+                new PassValidator(),
+                $this->moveRepository
+            ),
             'play' => new PlayController(
                 $this->session,
                 new PlayValidator(),
