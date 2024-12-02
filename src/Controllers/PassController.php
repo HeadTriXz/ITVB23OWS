@@ -32,16 +32,17 @@ class PassController
     public function handlePost(): void
     {
         $game = $this->session->get('game');
-        $error = $this->validator->validate($game);
+        if (!$game->hasEnded()) {
+            $error = $this->validator->validate($game);
+            if ($error) {
+                $this->session->set('error', $error);
+            } else {
+                $game->player = 1 - $game->player;
 
-        if ($error) {
-            $this->session->set('error', $error);
-        } else {
-            $game->player = 1 - $game->player;
-
-            // Save the game state.
-            $id = $this->moves->create('pass');
-            $this->session->set('last_move', $id);
+                // Save the game state.
+                $id = $this->moves->create('pass');
+                $this->session->set('last_move', $id);
+            }
         }
 
         App::redirect();

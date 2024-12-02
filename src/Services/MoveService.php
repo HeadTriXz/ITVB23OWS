@@ -30,6 +30,10 @@ class MoveService
      */
     public function move(Game $game, string $from, string $to): void
     {
+        if ($game->hasEnded()) {
+            return;
+        }
+
         // Move the tile on the board.
         $tile = $game->board->removeTile($from);
         $game->board->addTile($to, $tile);
@@ -40,5 +44,8 @@ class MoveService
         // Save the game state.
         $moveId = $this->moves->create('move', $from, $to);
         $this->session->set('last_move', $moveId);
+
+        // Check if the game has ended.
+        $game->updateStatus();
     }
 }

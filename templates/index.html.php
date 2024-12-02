@@ -7,6 +7,7 @@ use Hive\Core\Game;
 /** @var array $boardData */
 /** @var string $error */
 /** @var Game $game */
+/** @var string $gameEndMessage */
 /** @var array $movableTilesMap */
 /** @var array $movesHistory */
 /** @var array $placePositions */
@@ -61,7 +62,7 @@ use Hive\Core\Game;
             <option value="<?= $pos ?>"><?= $pos ?></option>
         <?php endforeach; ?>
     </select>
-    <input type="submit" value="Play">
+    <input type="submit" value="Play" <?= $game->hasEnded() ? 'disabled' : '' ?>>
 </form>
 <form method="post" action="/move">
     <select name="from" id="from" onchange="updateMoveTo()">
@@ -70,23 +71,33 @@ use Hive\Core\Game;
         <?php endforeach; ?>
     </select>
     <select name="to" id="to"></select>
-    <input type="submit" value="Move">
+    <input type="submit" value="Move" <?= $game->hasEnded() ? 'disabled' : '' ?>>
 </form>
 <form method="post" action="/pass">
-    <input type="submit" value="Pass">
+    <input type="submit" value="Pass" <?= $game->hasEnded() ? 'disabled' : '' ?>>
 </form>
 <form method="get" action="/restart">
     <input type="submit" value="Restart">
 </form>
 <strong><?= $error ?></strong>
+<strong><?= $gameEndMessage ?></strong>
 <ol>
     <?php foreach ($movesHistory as $move): ?>
         <li><?= $move['type'] ?> <?= $move['move_from'] ?> <?= $move['move_to'] ?></li>
     <?php endforeach; ?>
 </ol>
 <form method="post" action="/undo">
-    <input type="submit" value="Undo">
+    <input type="submit" value="Undo" <?= $game->hasEnded() ? 'disabled' : '' ?>>
 </form>
+<div id="gameEndModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="gameEndMessage"></p>
+        <form method="get" action="/restart">
+            <input type="submit" value="Restart">
+        </form>
+    </div>
+</div>
 <script>
     const validMoves = <?= json_encode($movableTilesMap) ?>;
 
@@ -111,6 +122,29 @@ use Hive\Core\Game;
 
     // Initialize the "to" dropdown on page load
     document.addEventListener('DOMContentLoaded', updateMoveTo);
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('gameEndModal');
+        const closeButton = document.getElementsByClassName('close')[0];
+        const gameEndMessage = document.getElementById('gameEndMessage');
+
+        if (<?= json_encode($game->hasEnded()) ?>) {
+            gameEndMessage.textContent = <?= json_encode($gameEndMessage) ?>;
+            modal.style.display = 'block';
+        }
+
+        closeButton.onclick = () => {
+            modal.style.display = 'none';
+        }
+
+        // When the user clicks anywhere outside the modal, close it
+        window.onclick = (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    });
 </script>
 </body>
 </html>

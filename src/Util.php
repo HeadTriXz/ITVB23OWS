@@ -3,6 +3,7 @@
 namespace Hive;
 
 use Hive\Core\GameBoard;
+use Hive\Tiles\TileType;
 
 /**
  * A utility class for various helper functions.
@@ -128,6 +129,26 @@ class Util
             }
         }
         return !!$all;
+    }
+
+    /**
+     * Get the position of the queen bee of a given player.
+     *
+     * @param GameBoard $board The current board state.
+     * @param int $player The player to get the queen bee position of.
+     * @return ?string The position of the queen bee of the given player, or null if not placed.
+     */
+    public static function getQueenPosition(GameBoard $board, int $player): ?string
+    {
+        foreach ($board->toArray() as $pos => $stack) {
+            foreach ($stack as $tile) {
+                if ($tile->getPlayer() == $player && $tile->getType() == TileType::QueenBee) {
+                    return $pos;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -32,6 +32,10 @@ class PlayService
      */
     public function play(Game $game, string $piece, string $to): void
     {
+        if ($game->hasEnded()) {
+            return;
+        }
+
         // Add the new tile to the board.
         $tile = Tile::from(TileType::from($piece), $game->player);
         $game->board->addTile($to, $tile);

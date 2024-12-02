@@ -3,6 +3,7 @@
 namespace Hive\Tests\Core;
 
 use Hive\Core\Game;
+use Hive\Core\GameStatus;
 use Hive\Tiles\Tile;
 use Hive\Tiles\TileType;
 use PHPUnit\Framework\TestCase;
@@ -130,5 +131,105 @@ class GameTest extends TestCase
         $this->assertEqualsCanonicalizing([
             "-1,0", "-1,1", "0,-1", "0,1", "1,-1", "1,0"
         ], $positions);
+    }
+
+    public function testIsQueenSurroundedNoQueen(): void
+    {
+        $game = new Game();
+
+        $isSurrounded = $game->isQueenSurrounded(0);
+
+        $this->assertFalse($isSurrounded);
+    }
+
+    public function testIsQueenSurroundedMissing(): void
+    {
+        $game = new Game();
+        $game->board->addTile("0,0", Tile::from(TileType::QueenBee, 0));
+        $game->board->addTile("0,1", Tile::from(TileType::QueenBee, 1));
+        $game->board->addTile("1,0", Tile::from(TileType::Beetle, 0));
+        $game->board->addTile("-1,2", Tile::from(TileType::Beetle, 1));
+        $game->board->addTile("-1,1", Tile::from(TileType::Beetle, 0));
+        $game->board->addTile("0,2", Tile::from(TileType::Beetle, 1));
+
+        $isSurrounded = $game->isQueenSurrounded(1);
+
+        $this->assertFalse($isSurrounded);
+    }
+
+    public function testIsQueenSurroundedAll(): void
+    {
+        $game = new Game();
+        $game->board->addTile("0,0", Tile::from(TileType::QueenBee, 0));
+        $game->board->addTile("0,1", Tile::from(TileType::QueenBee, 1));
+        $game->board->addTile("1,0", Tile::from(TileType::Beetle, 0));
+        $game->board->addTile("-1,2", Tile::from(TileType::Beetle, 1));
+        $game->board->addTile("-1,1", Tile::from(TileType::Beetle, 0));
+        $game->board->addTile("0,2", Tile::from(TileType::Beetle, 1));
+        $game->board->addTile("1,1", Tile::from(TileType::Spider, 0));
+
+        $isSurrounded = $game->isQueenSurrounded(1);
+
+        $this->assertTrue($isSurrounded);
+    }
+
+    public function testUpdateStatusNewGame(): void
+    {
+        $game = new Game();
+
+        $game->updateStatus();
+
+        $this->assertEquals(GameStatus::ONGOING, $game->status);
+    }
+
+    public function testUpdateStatusBlackSurrounded(): void
+    {
+        $game = new Game();
+        $game->board->addTile("0,0", Tile::from(TileType::QueenBee, 0));
+        $game->board->addTile("0,1", Tile::from(TileType::QueenBee, 1));
+        $game->board->addTile("1,0", Tile::from(TileType::Beetle, 0));
+        $game->board->addTile("-1,2", Tile::from(TileType::Beetle, 1));
+        $game->board->addTile("-1,1", Tile::from(TileType::Beetle, 0));
+        $game->board->addTile("0,2", Tile::from(TileType::Beetle, 1));
+        $game->board->addTile("1,1", Tile::from(TileType::Spider, 0));
+
+        $game->updateStatus();
+
+        $this->assertEquals(GameStatus::WHITE_WINS, $game->status);
+    }
+
+    public function testUpdateStatusWhiteSurrounded(): void
+    {
+        $game = new Game();
+        $game->board->addTile("0,0", Tile::from(TileType::QueenBee, 1));
+        $game->board->addTile("0,1", Tile::from(TileType::QueenBee, 0));
+        $game->board->addTile("1,0", Tile::from(TileType::Beetle, 1));
+        $game->board->addTile("-1,2", Tile::from(TileType::Beetle, 0));
+        $game->board->addTile("-1,1", Tile::from(TileType::Beetle, 1));
+        $game->board->addTile("0,2", Tile::from(TileType::Beetle, 0));
+        $game->board->addTile("1,1", Tile::from(TileType::Spider, 1));
+
+        $game->updateStatus();
+
+        $this->assertEquals(GameStatus::BLACK_WINS, $game->status);
+    }
+
+    public function testUpdateStatusDraw(): void
+    {
+        $game = new Game();
+        $game->board->addTile("0,0", Tile::from(TileType::QueenBee, 0));
+        $game->board->addTile("0,1", Tile::from(TileType::QueenBee, 1));
+        $game->board->addTile("1,0", Tile::from(TileType::Beetle, 0));
+        $game->board->addTile("-1,2", Tile::from(TileType::Beetle, 1));
+        $game->board->addTile("-1,1", Tile::from(TileType::Beetle, 0));
+        $game->board->addTile("0,2", Tile::from(TileType::Beetle, 1));
+        $game->board->addTile("1,1", Tile::from(TileType::Spider, 0));
+        $game->board->addTile("-1,0", Tile::from(TileType::Spider, 1));
+        $game->board->addTile("0,-1", Tile::from(TileType::Spider, 0));
+        $game->board->addTile("1,-1", Tile::from(TileType::Spider, 1));
+
+        $game->updateStatus();
+
+        $this->assertEquals(GameStatus::DRAW, $game->status);
     }
 }

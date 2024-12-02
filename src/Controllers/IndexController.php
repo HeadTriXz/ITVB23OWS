@@ -4,6 +4,7 @@ namespace Hive\Controllers;
 
 use Hive\App;
 use Hive\Core\Game;
+use Hive\Core\GameStatus;
 use Hive\Repositories\MoveRepository;
 use Hive\Session;
 use Hive\Util;
@@ -43,10 +44,27 @@ class IndexController
         $movableTilesMap = $this->getMovableTilesMap($game);
         $movesHistory = $this->moves->findAll($this->session->get('game_id'));
 
+        $gameEndMessage = $this->getGameEndMessage($game);
         $error = $this->session->get('error') ?? '';
         $this->session->delete('error');
 
         require_once TEMPLATE_DIR . '/index.html.php';
+    }
+
+    /**
+     * Get the message to display when the game ends.
+     *
+     * @param Game $game The current game state.
+     * @return string The message to display when the game ends.
+     */
+    public function getGameEndMessage(Game $game): string
+    {
+        return match ($game->status) {
+            GameStatus::WHITE_WINS => 'White wins!',
+            GameStatus::BLACK_WINS => 'Black wins!',
+            GameStatus::DRAW => 'Draw!',
+            default => '',
+        };
     }
 
     /**

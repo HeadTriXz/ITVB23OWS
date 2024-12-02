@@ -31,6 +31,13 @@ class Game
     public int $player = 0;
 
     /**
+     * The current status of the game.
+     *
+     * @var GameStatus
+     */
+    public GameStatus $status = GameStatus::ONGOING;
+
+    /**
      * Initialize the game state.
      */
     public function __construct()
@@ -56,6 +63,7 @@ class Game
         $self->board->fromArray($data[0]);
         $self->hand = $data[1];
         $self->player = $data[2];
+        $self->status = $data[3];
 
         return $self;
     }
@@ -171,6 +179,57 @@ class Game
     }
 
     /**
+     * Check whether the game has ended.
+     *
+     * @return bool Whether the game has ended.
+     */
+    public function hasEnded(): bool
+    {
+        return $this->status != GameStatus::ONGOING;
+    }
+
+    /**
+     * Check whether the player's queen is surrounded.
+     *
+     * @param int $player The player to check for.
+     * @return bool Whether the player's queen is surrounded.
+     */
+    public function isQueenSurrounded(int $player): bool
+    {
+        $queenPos = Util::getQueenPosition($this->board, $player);
+        if (!$queenPos) {
+            return false;
+        }
+
+        $neighbours = Util::getNeighbours($queenPos);
+        foreach ($neighbours as $pos) {
+            if (!$this->board->hasTile($pos)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Update the status of the game.
+     * This should be called after every move.
+     */
+    public function updateStatus(): void
+    {
+        $whiteSurrounded = $this->isQueenSurrounded(0);
+        $blackSurrounded = $this->isQueenSurrounded(1);
+
+        if ($whiteSurrounded && $blackSurrounded) {
+            $this->status = GameStatus::DRAW;
+        } elseif ($whiteSurrounded) {
+            $this->status = GameStatus::BLACK_WINS;
+        } elseif ($blackSurrounded) {
+            $this->status = GameStatus::WHITE_WINS;
+        }
+    }
+
+    /**
      * Store the game state as a string.
      *
      * @return string The serialized game state.
@@ -180,7 +239,8 @@ class Game
         return json_encode([
             $this->board->toJSON(),
             $this->hand,
-            $this->player
+            $this->player,
+            $this->status
         ]);
     }
 }

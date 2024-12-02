@@ -27,11 +27,14 @@ class UndoController
      */
     public function handlePost(): void
     {
-        $lastMove = $this->session->get('last_move') ?? 0;
-        $result = $this->moves->find($lastMove);
+        $game = $this->session->get('game');
+        if (!$game->hasEnded()) {
+            $lastMove = $this->session->get('last_move') ?? 0;
+            $result = $this->moves->find($lastMove);
 
-        $this->session->set('last_move', $result['previous_id']);
-        $this->session->set('game', Game::fromString($result['state']));
+            $this->session->set('last_move', $result['previous_id']);
+            $this->session->set('game', Game::fromString($result['state']));
+        }
 
         App::redirect();
     }
