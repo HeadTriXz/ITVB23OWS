@@ -2,6 +2,7 @@
 
 namespace Hive;
 
+use Hive\Controllers\AIController;
 use Hive\Controllers\IndexController;
 use Hive\Controllers\MoveController;
 use Hive\Controllers\PassController;
@@ -10,7 +11,9 @@ use Hive\Controllers\RestartController;
 use Hive\Controllers\UndoController;
 use Hive\Repositories\GameRepository;
 use Hive\Repositories\MoveRepository;
+use Hive\Services\AIService;
 use Hive\Services\MoveService;
+use Hive\Services\PassService;
 use Hive\Services\PlayService;
 use Hive\Validators\MoveValidator;
 use Hive\Validators\PassValidator;
@@ -73,24 +76,19 @@ class App
         $path = explode('/', $_SERVER['PATH_INFO'] ?? '');
         $route = $path[1] ?? 'index';
 
+        // Initialize services
+        $moveService = new MoveService($this->session, $this->moveRepository);
+        $passService = new PassService($this->session, $this->moveRepository);
+        $playService = new PlayService($this->session, $this->moveRepository);
+        $aiService = new AIService($this->session, $this->moveRepository, $moveService, $passService, $playService);
+
         // Find corresponding controller
         $controller = match ($route) {
+            'ai' => new AIController($this->session, $aiService),
             'index' => new IndexController($this->session, $this->moveRepository),
-            'move' => new MoveController(
-                $this->session,
-                new MoveValidator(),
-                new MoveService($this->session, $this->moveRepository)
-            ),
-            'pass' => new PassController(
-                $this->session,
-                new PassValidator(),
-                $this->moveRepository
-            ),
-            'play' => new PlayController(
-                $this->session,
-                new PlayValidator(),
-                new PlayService($this->session, $this->moveRepository)
-            ),
+            'move' => new MoveController($this->session, new MoveValidator(), $moveService),
+            'pass' => new PassController($this->session, new PassValidator(), $passService),
+            'play' => new PlayController($this->session, new PlayValidator(), $playService),
             'restart' => new RestartController($this->session, $this->gameRepository),
             'undo' => new UndoController($this->session, $this->moveRepository),
         };

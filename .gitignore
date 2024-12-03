@@ -1,5 +1,6 @@
 # Dependency directories
 vendor/
+venv/
 composer.phar
 
 # Environment file

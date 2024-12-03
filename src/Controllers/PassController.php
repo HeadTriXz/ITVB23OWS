@@ -3,7 +3,7 @@
 namespace Hive\Controllers;
 
 use Hive\App;
-use Hive\Repositories\MoveRepository;
+use Hive\Services\PassService;
 use Hive\Session;
 use Hive\Validators\PassValidator;
 
@@ -17,12 +17,12 @@ class PassController
      *
      * @param Session $session The session instance.
      * @param PassValidator $validator The validator for passing the turn.
-     * @param MoveRepository $moves The repository for the 'moves' table.
+     * @param PassService $service The service for passing the turn.
      */
     public function __construct(
         protected Session $session,
         protected PassValidator $validator,
-        protected MoveRepository $moves
+        protected PassService $service
     ) {
     }
 
@@ -32,17 +32,12 @@ class PassController
     public function handlePost(): void
     {
         $game = $this->session->get('game');
-        if (!$game->hasEnded()) {
-            $error = $this->validator->validate($game);
-            if ($error) {
-                $this->session->set('error', $error);
-            } else {
-                $game->player = 1 - $game->player;
+        $error = $this->validator->validate($game);
 
-                // Save the game state.
-                $id = $this->moves->create('pass');
-                $this->session->set('last_move', $id);
-            }
+        if ($error) {
+            $this->session->set('error', $error);
+        } else {
+            $this->service->pass($game);
         }
 
         App::redirect();

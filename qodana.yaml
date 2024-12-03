@@ -15,6 +15,7 @@ include:
 exclude:
   - name: All
     paths:
+      - ai
       - public
       - tests
       - vendor

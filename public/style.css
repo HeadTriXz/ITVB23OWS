@@ -85,6 +85,12 @@ div.tile.stacked:after {
     text-shadow: 4px 3px gray;
 }
 
+div.actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 10px;
+}
+
 .modal {
     display: none;
     position: fixed;

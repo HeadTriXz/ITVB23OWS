@@ -22,6 +22,23 @@ class MoveRepositoryTest extends TestCase
         'state' => '[{"0,0":[[0,"Q"]]},[{"Q":0,"B":2,"S":2,"A":3,"G":3},{"Q":1,"B":2,"S":2,"A":3,"G":3}],1]'
     ];
 
+    public function testCount(): void
+    {
+        $database = Mockery::mock(Database::class);
+        $session = Mockery::mock(Session::class);
+        $result = Mockery::mock(mysqli_result::class);
+
+        $database->allows()->query(Mockery::any())->andReturn($result);
+        $result->allows()->fetch_row()->andReturn([3]);
+
+        $repository = new MoveRepository($session, $database);
+
+        $count = $repository->count(1);
+
+        $this->assertEquals(3, $count);
+        $database->shouldHaveReceived()->query(Mockery::pattern("/game_id = 1/"));
+    }
+
     public function testFind(): void
     {
         $database = Mockery::mock(Database::class);

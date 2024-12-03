@@ -21,6 +21,21 @@ class MoveRepository
     }
 
     /**
+     * Count the number of moves for a specific game.
+     *
+     * @param int $gameId The ID of the game.
+     * @return int The number of moves.
+     */
+    public function count(int $gameId): int
+    {
+        $result = $this->database->query("
+            SELECT COUNT(*) FROM moves WHERE game_id = $gameId
+        ");
+
+        return $result->fetch_row()[0];
+    }
+
+    /**
      * Find a move by ID.
      *
      * @param int $id The ID of the move.
