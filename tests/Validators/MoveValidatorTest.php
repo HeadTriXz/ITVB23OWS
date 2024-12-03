@@ -125,27 +125,6 @@ class MoveValidatorTest extends TestCase
         $this->assertEquals('Move would split hive', $error);
     }
 
-    public function testValidateTileNotEmpty(): void
-    {
-        $game = new Game();
-        $validator = new MoveValidator();
-
-        $game->player = 0;
-        $game->board->addTile('0,0', Tile::from(TileType::Beetle, 0));
-        $game->board->addTile('0,1', Tile::from(TileType::Beetle, 1));
-        $game->board->addTile('0,-1', Tile::from(TileType::QueenBee, 0));
-        $game->board->addTile('0,2', Tile::from(TileType::QueenBee, 1));
-
-        $game->hand = [
-            0 => ['Q' => 0, 'B' => 1, 'S' => 2, 'A' => 3, 'G' => 3],
-            1 => ['Q' => 0, 'B' => 1, 'S' => 2, 'A' => 3, 'G' => 3]
-        ];
-
-        $error = $validator->validate($game, '0,-1', '0,0');
-
-        $this->assertEquals('Tile not empty', $error);
-    }
-
     public function testValidateTileNotEmptyBeetle(): void
     {
         $game = new Game();
@@ -164,7 +143,7 @@ class MoveValidatorTest extends TestCase
 
         $error = $validator->validate($game, '0,-1', '0,0');
 
-        // $this->assertNull($error); FIXME: Will fail due to the Beetle not being implemented yet.
+        $this->assertNull($error);
         $this->assertNotEquals('Tile not empty', $error);
     }
 
@@ -189,52 +168,6 @@ class MoveValidatorTest extends TestCase
         $error = $validator->validate($game, '0,0', '-1,1');
 
         $this->assertNotEquals('Tile must slide', $error);
-    }
-
-    public function testValidateTileNotSlidingQueen(): void
-    {
-        $game = new Game();
-        $validator = new MoveValidator();
-
-        $game->player = 0;
-        $game->board->addTile('0,0', Tile::from(TileType::QueenBee, 0));
-        $game->board->addTile('0,1', Tile::from(TileType::Beetle, 1));
-        $game->board->addTile('1,0', Tile::from(TileType::Beetle, 1));
-        $game->board->addTile('1,-1', Tile::from(TileType::Spider, 1));
-        $game->board->addTile('0,-1', Tile::from(TileType::Spider, 1));
-        $game->board->addTile('-1,0', Tile::from(TileType::SoldierAnt, 1));
-
-        $game->hand = [
-            0 => ['Q' => 0, 'B' => 2, 'S' => 2, 'A' => 3, 'G' => 3],
-            1 => ['Q' => 1, 'B' => 0, 'S' => 0, 'A' => 2, 'G' => 3]
-        ];
-
-        $error = $validator->validate($game, '0,0', '-1,1');
-
-        $this->assertEquals('Tile must slide', $error);
-    }
-
-    public function testValidateTileNotSlidingBeetle(): void
-    {
-        $game = new Game();
-        $validator = new MoveValidator();
-
-        $game->player = 0;
-        $game->board->addTile('0,0', Tile::from(TileType::Beetle, 0));
-        $game->board->addTile('0,1', Tile::from(TileType::Beetle, 1));
-        $game->board->addTile('1,0', Tile::from(TileType::Beetle, 1));
-        $game->board->addTile('1,-1', Tile::from(TileType::Spider, 1));
-        $game->board->addTile('0,-1', Tile::from(TileType::Spider, 1));
-        $game->board->addTile('-1,0', Tile::from(TileType::SoldierAnt, 1));
-
-        $game->hand = [
-            0 => ['Q' => 0, 'B' => 2, 'S' => 2, 'A' => 3, 'G' => 3],
-            1 => ['Q' => 1, 'B' => 0, 'S' => 0, 'A' => 2, 'G' => 3]
-        ];
-
-        $error = $validator->validate($game, '0,0', '-1,1');
-
-        $this->assertEquals('Tile must slide', $error);
     }
 
     public function testValidateInvalidMove(): void

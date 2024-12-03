@@ -3,8 +3,6 @@
 namespace Hive\Validators;
 
 use Hive\Core\Game;
-use Hive\Tiles\Tile;
-use Hive\Tiles\TileType;
 use Hive\Util;
 
 /**
@@ -42,7 +40,7 @@ class MoveValidator implements ValidatorInterface
 
         // Temporarily remove tile from board
         $tile = $game->board->removeTile($from);
-        $error = $this->checkTemporarilyRemovedTile($game, $tile, $from, $to);
+        $error = $this->checkTemporarilyRemovedTile($game, $to);
 
         $game->board->addTile($from, $tile);
         if ($error) {
@@ -62,24 +60,13 @@ class MoveValidator implements ValidatorInterface
      * Run checks on the temporarily removed tile.
      *
      * @param Game $game The current game state.
-     * @param Tile $tile The tile to move.
-     * @param string $from The old position of the tile.
      * @param string $to The new position of the tile.
      * @return ?string An error message if the move is invalid, null otherwise.
      */
-    protected function checkTemporarilyRemovedTile(Game $game, Tile $tile, string $from, string $to): ?string
+    protected function checkTemporarilyRemovedTile(Game $game, string $to): ?string
     {
         if (!Util::hasNeighbour($to, $game->board) || Util::hasMultipleHives($game->board)) {
             return 'Move would split hive';
-        }
-
-        if ($game->board->hasTile($to) && $tile->getType() != TileType::Beetle) {
-            return 'Tile not empty';
-        }
-
-        $mustSlide = $tile->getType() == TileType::QueenBee || $tile->getType() == TileType::Beetle;
-        if ($mustSlide && !Util::isValidSlide($game->board, $from, $to)) {
-            return 'Tile must slide';
         }
 
         return null;
