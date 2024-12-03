@@ -7,10 +7,10 @@ use Hive\Database;
 use Hive\Repositories\MoveRepository;
 use Hive\Session;
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 use mysqli_result;
-use PHPUnit\Framework\TestCase;
 
-class MoveRepositoryTest extends TestCase
+class MoveRepositoryTest extends MockeryTestCase
 {
     protected const array MOCK_MOVE = [
         'id' => 3,
@@ -39,6 +39,20 @@ class MoveRepositoryTest extends TestCase
         $database->shouldHaveReceived()->query(Mockery::pattern("/game_id = 1/"));
     }
 
+    public function testDelete(): void
+    {
+        $database = Mockery::mock(Database::class);
+        $session = Mockery::mock(Session::class);
+
+        $database->allows()->execute(Mockery::any());
+
+        $repository = new MoveRepository($session, $database);
+
+        $repository->delete(1, 3);
+
+        $database->shouldHaveReceived()->execute(Mockery::pattern("/game_id = 1 AND id = 3/"));
+    }
+
     public function testFind(): void
     {
         $database = Mockery::mock(Database::class);
@@ -50,10 +64,10 @@ class MoveRepositoryTest extends TestCase
 
         $repository = new MoveRepository($session, $database);
 
-        $results = $repository->find(3);
+        $results = $repository->find(1, 3);
 
         $this->assertEquals(self::MOCK_MOVE, $results);
-        $database->shouldHaveReceived()->query(Mockery::pattern("/id = 3/"));
+        $database->shouldHaveReceived()->query(Mockery::pattern("/game_id = 1 AND id = 3/"));
     }
 
     public function testFindAll(): void

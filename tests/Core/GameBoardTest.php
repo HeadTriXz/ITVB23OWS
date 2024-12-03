@@ -144,8 +144,8 @@ class GameBoardTest extends TestCase
 
         $this->assertEquals([
             "0,0" => [
-                [1, TileType::Beetle],
-                [0, TileType::QueenBee]
+                [1, 'B'],
+                [0, 'Q']
             ]
         ], $json);
     }
@@ -156,8 +156,8 @@ class GameBoardTest extends TestCase
 
         $data = [
             "0,0" => [
-                [0, TileType::QueenBee],
-                [1, TileType::Beetle]
+                [0, 'Q'],
+                [1, 'B']
             ]
         ];
 

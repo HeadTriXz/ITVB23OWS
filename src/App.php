@@ -15,6 +15,7 @@ use Hive\Services\AIService;
 use Hive\Services\MoveService;
 use Hive\Services\PassService;
 use Hive\Services\PlayService;
+use Hive\Services\UndoService;
 use Hive\Validators\MoveValidator;
 use Hive\Validators\PassValidator;
 use Hive\Validators\PlayValidator;
@@ -80,6 +81,7 @@ class App
         $moveService = new MoveService($this->session, $this->moveRepository);
         $passService = new PassService($this->session, $this->moveRepository);
         $playService = new PlayService($this->session, $this->moveRepository);
+        $undoService = new UndoService($this->session, $this->moveRepository);
         $aiService = new AIService($this->session, $this->moveRepository, $moveService, $passService, $playService);
 
         // Find corresponding controller
@@ -90,7 +92,7 @@ class App
             'pass' => new PassController($this->session, new PassValidator(), $passService),
             'play' => new PlayController($this->session, new PlayValidator(), $playService),
             'restart' => new RestartController($this->session, $this->gameRepository),
-            'undo' => new UndoController($this->session, $this->moveRepository),
+            'undo' => new UndoController($this->session, $undoService)
         };
 
         // Dispatch GET or POST request

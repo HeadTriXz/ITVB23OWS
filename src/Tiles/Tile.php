@@ -52,7 +52,7 @@ abstract class Tile
      */
     public function toArray(): array
     {
-        return [$this->player, $this->type];
+        return [$this->player, $this->type->value];
     }
 
     /**
@@ -83,7 +83,7 @@ abstract class Tile
      */
     public static function fromArray(array $data): Tile
     {
-        return self::from($data[1], $data[0]);
+        return self::from(TileType::from($data[1]), $data[0]);
     }
 
     /**

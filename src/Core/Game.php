@@ -63,7 +63,7 @@ class Game
         $self->board->fromArray($data[0]);
         $self->hand = $data[1];
         $self->player = $data[2];
-        $self->status = $data[3];
+        $self->status = GameStatus::from($data[3]);
 
         return $self;
     }

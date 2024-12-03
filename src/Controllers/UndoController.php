@@ -3,8 +3,7 @@
 namespace Hive\Controllers;
 
 use Hive\App;
-use Hive\Core\Game;
-use Hive\Repositories\MoveRepository;
+use Hive\Services\UndoService;
 use Hive\Session;
 
 /**
@@ -16,9 +15,9 @@ class UndoController
      * A controller for undoing the last move.
      *
      * @param Session $session The session instance.
-     * @param MoveRepository $moves The repository for the 'moves' table.
+     * @param UndoService $service The service for undoing the last move.
      */
-    public function __construct(protected Session $session, protected MoveRepository $moves)
+    public function __construct(protected Session $session, protected UndoService $service)
     {
     }
 
@@ -28,13 +27,8 @@ class UndoController
     public function handlePost(): void
     {
         $game = $this->session->get('game');
-        if (!$game->hasEnded()) {
-            $lastMove = $this->session->get('last_move') ?? 0;
-            $result = $this->moves->find($lastMove);
 
-            $this->session->set('last_move', $result['previous_id']);
-            $this->session->set('game', Game::fromString($result['state']));
-        }
+        $this->service->undo($game);
 
         App::redirect();
     }

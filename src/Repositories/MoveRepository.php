@@ -36,15 +36,29 @@ class MoveRepository
     }
 
     /**
+     * Delete a move by ID.
+     *
+     * @param int $gameId The ID of the game.
+     * @param int $id The ID of the move.
+     */
+    public function delete(int $gameId, int $id): void
+    {
+        $this->database->execute("
+            DELETE FROM moves WHERE game_id = $gameId AND id = $id
+        ");
+    }
+
+    /**
      * Find a move by ID.
      *
+     * @param int $gameId The ID of the game.
      * @param int $id The ID of the move.
      * @return ?array The move as an associative array, or null if not found.
      */
-    public function find(int $id): ?array
+    public function find(int $gameId, int $id): ?array
     {
         $result = $this->database->query("
-            SELECT * FROM moves WHERE id = $id
+            SELECT * FROM moves WHERE game_id = $gameId AND id = $id
         ");
 
         return $result->fetch_assoc();

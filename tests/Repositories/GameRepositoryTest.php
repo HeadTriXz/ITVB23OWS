@@ -5,9 +5,9 @@ namespace Hive\Tests\Repositories;
 use Hive\Database;
 use Hive\Repositories\GameRepository;
 use Mockery;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class GameRepositoryTest extends TestCase
+class GameRepositoryTest extends MockeryTestCase
 {
     public function testCreate(): void
     {
