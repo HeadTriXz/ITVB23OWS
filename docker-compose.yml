@@ -1,0 +1,44 @@
+name: hive
+services:
+  app:
+    build:
+      context: ./apps/hive
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+      - ai
+    env_file:
+      - .env
+    environment:
+      - AI_URL=http://ai:5000
+      - DB_HOST=mysql
+      - DB_PORT=3306
+    restart: always
+
+  ai:
+    build:
+      context: ./apps/ai
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    restart: always
+
+  mysql:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password}
+      MYSQL_USER: ${DB_USERNAME:-hive}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-password}
+      MYSQL_DATABASE: ${DB_DATABASE:-hive}
+    restart: always
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:

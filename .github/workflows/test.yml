@@ -12,6 +12,9 @@ jobs:
   unit-test:
     name: Unit Tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/hive
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,7 +32,7 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Test with PHPUnit
-        run: ./vendor/bin/phpunit --coverage-clover .qodana/code-coverage/clover.xml
+        run: ./vendor/bin/phpunit --coverage-clover ../../.qodana/code-coverage/clover.xml
         env:
           XDEBUG_MODE: coverage
 

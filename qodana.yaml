@@ -9,13 +9,13 @@ include:
   - name: PhpConstantNamingConventionInspection
   - name: PhpFunctionNamingConventionInspection
   - name: PhpPropertyNamingConventionInspection
-  - name: PhpVulnerablePathsInspection
   - name: PhpUnnecessaryDoubleQuotesInspection
+  - name: PhpVulnerablePathsInspection
 
 exclude:
   - name: All
     paths:
-      - ai
-      - public
-      - tests
-      - vendor
+      - apps/ai
+      - apps/hive/public
+      - apps/hive/tests
+      - apps/hive/vendor
