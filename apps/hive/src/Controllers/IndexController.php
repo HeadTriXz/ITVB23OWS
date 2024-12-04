@@ -108,12 +108,12 @@ class IndexController
         $tiles = [];
         foreach ($game->board->toArray() as $pos => $stack) {
             [$q, $r] = Util::parsePosition($pos);
+            $left = $width * (($q - $minQ) + ($r - $minR) / 2) . 'px';
+            $top = $height * ($r - $minR) . 'px';
+
             $tiles[$pos] = [
                 'class' => 'player' . $stack[0]->getPlayer() . (count($stack) > 1 ? ' stacked' : ''),
-                'style' => [
-                    'left' => $width * (($q - $minQ) + ($r - $minR) / 2) . 'px',
-                    'top' => $height * ($r - $minR) . 'px',
-                ],
+                'style' => "left: $left; top: $top;",
                 'label' => "$q,$r",
                 'type' => $stack[0]->getType()->value,
             ];
@@ -126,12 +126,12 @@ class IndexController
             }
 
             [$q, $r] = Util::parsePosition($pos);
+            $left = $width * (($q - $minQ) + ($r - $minR) / 2) . 'px';
+            $top = $height * ($r - $minR) . 'px';
+
             $tiles[$pos] = [
                 'class' => 'empty',
-                'style' => [
-                    'left' => $width * (($q - $minQ) + ($r - $minR) / 2) . 'px',
-                    'top' => $height * ($r - $minR) . 'px',
-                ],
+                'style' => "left: $left; top: $top;",
                 'label' => "$q,$r",
                 'type' => '&nbsp;',
             ];

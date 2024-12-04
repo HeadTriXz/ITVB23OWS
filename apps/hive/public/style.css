@@ -91,6 +91,15 @@ div.actions {
     margin-top: 10px;
 }
 
+div.move-history {
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column-reverse;
+    height: 25dvh;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
 .modal {
     display: none;
     position: fixed;

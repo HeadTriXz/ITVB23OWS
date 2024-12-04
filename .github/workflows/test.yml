@@ -43,7 +43,7 @@ jobs:
           path: .qodana/code-coverage
 
       - name: Upload to Qodana
-        uses: jetbrains/qodana-action@main
+        uses: jetbrains/qodana-action@v2024.2
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:

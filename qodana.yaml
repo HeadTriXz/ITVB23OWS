@@ -2,7 +2,9 @@ version: "1.0"
 profile:
   path: .qodana/profile.yaml
 
-linter: jetbrains/qodana-php:latest
+linter: jetbrains/qodana-php:2024.2
+php:
+  version: "8.3"
 
 include:
   - name: PhpCSValidationInspection
