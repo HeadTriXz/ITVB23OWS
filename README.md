@@ -84,9 +84,9 @@ This project implements modern development pipelines using GitHub Actions, autom
 - **Version Control**: Managed with GitHub
 - **CI/CD**: Automated workflows using GitHub Actions
     - Unit tests run on every push
-    - Docker images are built and published to [GitHub Packages](https://github.com/Hanzehogeschool-hbo-ict/fall-2024-lars-k/pkgs/container/fall-2024-lars-k). To pull the latest image:
+    - Docker images are built and published to [GitHub Packages](https://github.com/HeadTriXz/ITVB23OWS/pkgs/container/ITVB23OWS). To pull the latest image:
         ```sh
-        docker pull ghcr.io/hanzehogeschool-hbo-ict/fall-2024-lars-k:main
+        docker pull ghcr.io/HeadTriXz/ITVB23OWS:main
         ```
 - **Code Quality**:
     - **Qodana** for static analysis
